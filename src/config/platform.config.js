@@ -1,6 +1,8 @@
 const platformUrl = process.env.TIMETABLE_BOT_PLATFORM_URL
 
-module.exports = {
+const config = {
     platformUrl,
-    actionsUrl: `${platfromUrl}/api/actions`
+    actionsUrl: `${platformUrl}/api/actions`
 }
+
+module.exports = config
