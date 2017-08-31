@@ -5,17 +5,17 @@ const botConfig = require('./config/bot.config')
 const platformConfig = require('./config/platform.config')
 
 const bot = bb(botConfig)
-initActions(bot, platformConfig)
 
-async function initActions(bot, platformConfig) {
-    const actionsResponse = await axios.get(platformConfig.actionsUrl)
-    actionsResponse.data.forEach(action => {
-        bot.command(action).invoke(async ctx => {
-            const userId = `telegram:${ctx.meta.user.id}`
-            const response = await axios.get(`${platformConfig.actionsUrl}/${action}?userId=${userId}`)
-            sendMessage(ctx, response.data)
-        })
-    })
+bot.command(/.*/).invoke(ctx => execute(ctx, ctx.command.name))
+
+bot.api.onText(/^[^\/].*$/, msg => {
+    bot.api.sendMessage(msg.chat.id, 'Not a command')
+})
+
+async function execute(ctx, action) {
+    const userId = `telegram:${ctx.meta.user.id}`
+    const response = await axios.get(`${platformConfig.actionsUrl}/${action}?userId=${userId}`)
+    sendMessage(ctx, response.data)
 }
 
 function sendMessage(ctx, meta) {
@@ -26,6 +26,8 @@ function sendMessage(ctx, meta) {
             return [key]
         })
         ctx.keyboard(keyboard)
+    } else {
+        ctx.hideKeyboard()
     }
     meta.messages.forEach(message => ctx.sendMessage(message))
 }
