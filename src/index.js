@@ -17,11 +17,12 @@ actionsResponse.data.forEach(action => {
 })
 
 function sendMessage(ctx, meta) {
-    const message = `${meta.title}\n\n${meta.message}`
-    ctx.sendMessage(message)
-
-    if (meta.actions) {
-        const keyboard = meta.actions.map(action => {}) //TODO: create actual keyboard
+    meta.messages.forEach(message => ctx.sendMessage(message))
+    if (meta.buttons) {
+        const keyboard = meta.buttons.map(button => {
+            const key = {}
+            key[button.label] = { go: button.action }
+        })
         ctx.keyboard(keyboard)
     }
 }
