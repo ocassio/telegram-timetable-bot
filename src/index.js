@@ -23,7 +23,7 @@ bot.api.onText(/^[^\/].*$/, async msg => {
     const lastMessage = messages[messages.length - 1]
     if (lastMessage) {
         bot.api.sendMessage(msg.chat.id, lastMessage, {
-            'reply_markup': keyboard
+            'reply_markup': keyboard ? keyboard : { 'hide_keyboard': true }
         })
     }
 })
