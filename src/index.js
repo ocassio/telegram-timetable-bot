@@ -1,47 +1,40 @@
-const bb = require('bot-brother')
+const tgfancy = require('tgfancy')
 const axios = require('axios')
 
 const botConfig = require('./config/bot.config')
 const platformConfig = require('./config/platform.config')
 
-const bot = bb(botConfig)
+const bot = new tgfancy(botConfig.token, botConfig)
 
-bot.command(/.*/).invoke(ctx => execute(ctx, ctx.command.name))
+// Actions handling
+bot.onText(/\/(.+)/, (msg, match) => execute(msg, match[1]))
 
-bot.api.onText(/^[^\/].*$/, async msg => {
+// Responses handling
+bot.onText(/^[^\/].+$/, (msg, match) => execute(msg, 'response', match[0]))
+
+bot.on('callback_query', msg => execute(msg, msg.data))
+
+async function execute(msg, action, value) {
     const userId = getUserId(msg.from.id)
-    const response = await axios.get(`${platformConfig.actionsUrl}/response?userId=${userId}`)
-    
-    const meta = response.data
+    const response = await axios.get(`${platformConfig.actionsUrl}/${action}?userId=${userId}`)
+    sendMessages(msg, response.data)
+}
+
+function sendMessages(msg, meta) {
+
     const messages = meta.messages
     const keyboard = getKeyboard(meta)
-
+    
     for (let i = 0; i < messages.length - 1; i++) {
-        bot.api.sendMessage(msg.chat.id, messages[i])
+        bot.sendMessage(msg.from.id, messages[i])
     }
 
     const lastMessage = messages[messages.length - 1]
     if (lastMessage) {
-        bot.api.sendMessage(msg.chat.id, lastMessage, {
-            'reply_markup': keyboard ? keyboard : { 'hide_keyboard': true }
+        bot.sendMessage(msg.from.id, lastMessage, {
+            reply_markup: keyboard ? { inline_keyboard: keyboard } : { hide_keyboard: true }
         })
     }
-})
-
-async function execute(ctx, action) {
-    const userId = getUserId(ctx.meta.user.id)
-    const response = await axios.get(`${platformConfig.actionsUrl}/${action}?userId=${userId}`)
-    sendMessage(ctx, response.data)
-}
-
-function sendMessage(ctx, meta) {
-    const keyboard = getKeyboard(meta)
-    if (keyboard) {
-        ctx.keyboard(keyboard)
-    } else {
-        ctx.hideKeyboard()
-    }
-    meta.messages.forEach(message => ctx.sendMessage(message))
 }
 
 function getUserId(id) {
@@ -52,9 +45,8 @@ function getKeyboard(meta) {
     if (!meta.buttons || meta.buttons.length === 0) {
         return
     }
-    return meta.buttons.map(button => {
-        const key = {}
-        key[button.label] = { go: button.action }
-        return [key]
-    })
+    return meta.buttons.map(button => [{
+        text: button.label,
+        callback_data: button.action
+    }])
 }

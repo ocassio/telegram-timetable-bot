@@ -8,6 +8,6 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.16.2",
-    "bot-brother": "^2.1.5"
+    "tgfancy": "^0.11.0"
   }
 }
