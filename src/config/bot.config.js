@@ -1,7 +1,10 @@
 const production = process.env.NODE_ENV === 'production'
 
 const config = {
-    key: process.env.TIMETABLE_BOT_TELEGRAM_TOKEN
+    token: process.env.TIMETABLE_BOT_TELEGRAM_TOKEN,
+    tgfancy: {
+        orderedSending: true
+    }
 }
 
 const devConfig = {
