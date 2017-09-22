@@ -21,7 +21,7 @@ socket.on('sendMessage', data => {
 bot.onText(/\/(.+)/, (msg, match) => execute(msg, match[1]))
 
 // Responses handling
-bot.onText(/^[^\/].+$/, (msg, match) => execute(msg, 'response', match[0]))
+bot.onText(/^[^\/].*$/, (msg, match) => execute(msg, 'response', match[0]))
 
 // Keyboard clicks handling
 bot.on('callback_query', msg => execute(msg, msg.data))
