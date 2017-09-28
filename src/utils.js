@@ -32,12 +32,53 @@ function getKeyboard(meta) {
     }
     return meta.buttons.map(button => [{
         text: button.label,
-        callback_data: button.action
+        callback_data: encodeAction(button.action, button.params)
     }])
+}
+
+/**
+ * Encodes action name and params to callback data string
+ * 
+ * @param {string} name Action name
+ * @param {object} params Action params
+ * @returns {string} Encoded callback data
+ */
+function encodeAction(name, params) {
+    let result = name
+    if (params) {
+        Object.keys(params).forEach(name => {
+            const value = params[name]
+            if (value) {
+                result += `|${name}=${JSON.stringify(value)}`
+            }
+        })
+    }
+    return result
+}
+
+/**
+ * Decodes action name and params from callback data string
+ * 
+ * @param {string} data Callback data
+ * @returns {object} Decoded action with params
+ */
+function decodeAction(data) {
+    const sections = data.split('|')
+    const params = { action: sections[0] }
+    
+    sections.shift()    
+    sections.forEach(section => {
+        const subsections = section.split('=')
+        params[subsections[0]] = JSON.parse(subsections[1])
+    })
+
+    return params
 }
 
 module.exports = {
     toPlatformUserId,
     toTelegramUserId,
-    getKeyboard
+    getKeyboard,
+    encodeAction,
+    decodeAction
 }

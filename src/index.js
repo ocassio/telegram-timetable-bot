@@ -1,7 +1,7 @@
 const tgfancy = require('tgfancy')
 const io = require('socket.io-client')
 
-const { toPlatformUserId, toTelegramUserId, getKeyboard } = require('./utils')
+const { toPlatformUserId, toTelegramUserId, getKeyboard, decodeAction } = require('./utils')
 const botConfig = require('./config/bot.config')
 const platformConfig = require('./config/platform.config')
 
@@ -18,20 +18,16 @@ socket.on('sendMessage', data => {
 })
 
 // Actions handling
-bot.onText(/\/(.+)/, (msg, match) => execute(msg, match[1]))
+bot.onText(/\/(.+)/, (msg, match) => execute(msg, { action: match[1] }))
 
 // Responses handling
-bot.onText(/^[^\/].*$/, (msg, match) => execute(msg, 'response', match[0]))
+bot.onText(/^[^\/].*$/, (msg, match) => execute(msg, { action: 'response', value: match[0] }))
 
 // Keyboard clicks handling
-bot.on('callback_query', msg => execute(msg, msg.data))
+bot.on('callback_query', msg => execute(msg, decodeAction(msg.data)))
 
-async function execute(msg, action, value) {
-    const params = {
-        userId: toPlatformUserId(msg.from.id),
-        action: action,
-        value: value
-    }
+async function execute(msg, params = {}) {
+    params.userId = toPlatformUserId(msg.from.id)
     socket.emit('action', params)
 }
 
