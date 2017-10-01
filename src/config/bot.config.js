@@ -10,7 +10,9 @@ const config = {
 const devConfig = {
     polling: {
         interval: 1000,
-        timeout: 0
+        params: {
+            timeout: 1000
+        }
     }
 }
 
