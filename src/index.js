@@ -6,7 +6,7 @@ const botConfig = require('./config/bot.config')
 const platformConfig = require('./config/platform.config')
 
 const bot = new tgfancy(botConfig.token, botConfig)
-const socket = io(platformConfig.platformUrl)
+const socket = io(platformConfig.platformUrl, { query: `name=${platformConfig.clientName}` })
 
 socket.on('connect', () => console.log('Connection with the platform established successfully'))
 socket.on('disconnect', () => console.log('Connection with the platform has been dropped'))
