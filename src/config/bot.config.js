@@ -17,7 +17,9 @@ const devConfig = {
 }
 
 const prodConfig = {
-
+    webHook: {
+        port: process.env.TIMETABLE_BOT_TELEGRAM_PORT || 3000
+    }
 }
 
 module.exports = Object.assign({}, config, production ? prodConfig : devConfig)
