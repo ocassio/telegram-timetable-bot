@@ -8,7 +8,13 @@ const platformConfig = require('./config/platform.config')
 const bot = new tgfancy(botConfig.token, botConfig)
 const socket = io(platformConfig.platformUrl, { query: `name=${platformConfig.clientName}` })
 
-socket.on('connect', () => console.log('Connection with the platform established successfully'))
+socket.on('connect', () => {
+    console.log('Connection with the platform established successfully')
+    console.log('Performing authentication...')
+    socket.emit('authentication', { token: platformConfig.token })
+})
+
+socket.on('authenticated', () => console.log('Authentication process completed successfully'))
 socket.on('disconnect', () => console.log('Connection with the platform has been dropped'))
 socket.on('connect_error', () => console.error('There is some connection problem'))
 
