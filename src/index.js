@@ -32,6 +32,10 @@ bot.onText(/^[^\/].*$/, (msg, match) => execute(msg, { action: 'response', value
 // Keyboard clicks handling
 bot.on('callback_query', msg => execute(msg, decodeAction(msg.data)))
 
+if (botConfig.webHook) {
+    bot.openWebHook()
+}
+
 async function execute(msg, params = {}) {
     params.userId = toPlatformUserId(msg.from.id)
     socket.emit('action', params)
